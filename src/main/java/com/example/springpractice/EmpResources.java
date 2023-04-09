@@ -1,6 +1,11 @@
 package com.example.springpractice;
 
 import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,13 +32,16 @@ public class EmpResources {
     }
 
     @GetMapping("/employee/{id}")
-    public Employee retriveOne(@PathVariable int id){
+    public EntityModel<Employee> retriveOne(@PathVariable int id){
         Employee employee =  service.findOne(id);
         if(employee == null){
             throw new EmpNotFoundException("id :"+ id);
         }
+        EntityModel<Employee> employeeEntityModel = EntityModel.of(employee);
+        WebMvcLinkBuilder linkBuilder = linkTo(methodOn(this.getClass()).retriveAll());
+        employeeEntityModel.add(linkBuilder.withRel("All Employee"));
 
-        return employee;
+        return employeeEntityModel;
     }
 
 
